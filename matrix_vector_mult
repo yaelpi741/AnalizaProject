@@ -1,0 +1,134 @@
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+def matrix_vector_mult(matrix, vector):
+    """
+    Multiplies a matrix by a vector.
+
+    Parameters:
+    -----------
+    matrix : list of list of float
+        The matrix A.
+    vector : list of float
+        The vector x.
+
+    Returns:
+    --------
+    list of float
+        Resulting vector from A * x.
+
+    Raises:
+    -------
+    ValueError:
+        If dimensions of matrix and vector do not align.
+    """
+    result = []
+    for row in matrix:
+        if len(row) != len(vector):
+            raise ValueError("Matrix row and vector length mismatch.")
+        value = sum(row[i] * vector[i] for i in range(len(vector)))
+        result.append(value)
+    return result
+
+def vector_subtract(v1, v2):
+    """
+    Subtracts one vector from another (v1 - v2).
+
+    Parameters:
+    -----------
+    v1 : list of float
+        First vector.
+    v2 : list of float
+        Second vector.
+
+    Returns:
+    --------
+    list of float
+        The result of v1 - v2.
+
+    Raises:
+    -------
+    ValueError:
+        If vectors are not the same length.
+    """
+    if len(v1) != len(v2):
+        raise ValueError("Vector length mismatch.")
+    return [v1[i] - v2[i] for i in range(len(v1))]
+
+def max_norm(vector):
+    """
+    Computes the infinity norm (max norm) of a vector.
+
+    Parameters:
+    -----------
+    vector : list of float
+
+    Returns:
+    --------
+    float
+        Maximum absolute value of the vector.
+    """
+    return max(abs(v) for v in vector)
+
+def residual_norm_max(A, x, b):
+    """
+    Calculates the residual vector r = b - Ax and its max norm.
+
+    Parameters:
+    -----------
+    A : list of list of float
+        Matrix A in Ax = b.
+    x : list of float
+        Approximated solution vector.
+    b : list of float
+        Right-hand side vector.
+
+    Returns:
+    --------
+    tuple (list of float, float)
+        Residual vector and its max norm.
+    """
+    Ax = matrix_vector_mult(A, x)
+    r = vector_subtract(b, Ax)
+    return r, max_norm(r)
+
+def plot_residual(r):
+    """
+    Plots the residual vector as a bar chart.
+
+    Parameters:
+    -----------
+    r : list of float
+        Residual vector to plot.
+    """
+    indices = list(range(len(r)))
+    plt.bar(indices, r)
+    plt.xlabel("Index")
+    plt.ylabel("Residual Value")
+    plt.title("Residual Vector r = b - Ax")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+# =============================
+# Example Use Case
+# =============================
+
+A = [
+    [3, 2],
+    [1, 4]
+]
+
+b = [5, 6]
+x_approx = [1, 1]  # Example approximate solution
+
+# Calculate residual and norm
+residual_vector, error = residual_norm_max(A, x_approx, b)
+
+# Output
+print("Residual vector r =", residual_vector)
+print("Residual max norm (‖r‖∞):", error)
+
+# Show graph
+plot_residual(residual_vector)
