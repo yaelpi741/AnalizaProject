@@ -2,6 +2,8 @@
 # Shahar Ezra - 329186118
 # Tamar Mosheev - 213864242
 
+import matplotlib.pyplot as plt
+
 def f(x):
     """Returns the value of the function f(x) = x^3 - 6x^2 + 11x - 6."""
     return x**3 - 6*x**2 + 11*x - 6
@@ -11,15 +13,6 @@ def df(x):
     return 3*x**2 - 12*x + 11
 
 def newton_raphson(func, dfunc, x0, epsilon=0.0001, max_iterations=100):
-    """
-    Newton-Raphson method for finding a root of a function.
-    :param func: The function f(x)
-    :param dfunc: The derivative f'(x)
-    :param x0: Initial guess
-    :param epsilon: Tolerance
-    :param max_iterations: Maximum number of iterations
-    :return: Approximated root and number of iterations
-    """
     iterations = 0
     while iterations < max_iterations:
         fx = func(x0)
@@ -36,15 +29,6 @@ def newton_raphson(func, dfunc, x0, epsilon=0.0001, max_iterations=100):
     return None, iterations
 
 def secant_method(func, start_point, end_point, epsilon=0.0001, max_iterations=100):
-    """
-    Secant method for finding a root using two initial guesses.
-    :param func: The function f(x)
-    :param start_point: First initial guess
-    :param end_point: Second initial guess
-    :param epsilon: Tolerance
-    :param max_iterations: Maximum number of iterations
-    :return: Approximated root and number of iterations
-    """
     x0 = start_point
     x1 = end_point
     iteration = 0
@@ -61,7 +45,6 @@ def secant_method(func, start_point, end_point, epsilon=0.0001, max_iterations=1
             print(f"[Secant] Error evaluating function at iteration {iteration}: {e}")
             return None, iteration
 
-        # בדיקה אם אחד מהקצוות הוא שורש מדויק
         if abs(f_x0) < epsilon:
             print(f"[Secant] Exact root found at x = {x0}")
             return x0, iteration
@@ -77,8 +60,6 @@ def secant_method(func, start_point, end_point, epsilon=0.0001, max_iterations=1
         x2 = x1 - f_x1 * (x1 - x0) / denominator
 
         if abs(x2 - x1) < epsilon:
-            print(f"[Secant] Root found: {x2}")
-            print(f"[Secant] Number of iterations: {iteration + 1}")
             return x2, iteration + 1
 
         x0, x1 = x1, x2
@@ -88,14 +69,6 @@ def secant_method(func, start_point, end_point, epsilon=0.0001, max_iterations=1
     return None, iteration
 
 def bisection_method(f, start, end, epsilon=0.0001):
-    """
-    Bisection method for finding a root in a given interval.
-    :param f: The function f(x)
-    :param start: Left bound of interval
-    :param end: Right bound of interval
-    :param epsilon: Tolerance
-    :return: Approximated root and number of iterations
-    """
     a = start
     b = end
     iterations = 0
@@ -114,10 +87,38 @@ def bisection_method(f, start, end, epsilon=0.0001):
             a = mid
     return (a + b) / 2.0, iterations
 
+def plot_function_with_roots(f, roots, start, end, step=0.01, method_name=""):
+    """
+    Plots the function f(x) and highlights the roots found.
+    """
+    x_vals = []
+    y_vals = []
+
+    x = start
+    while x <= end:
+        x_vals.append(x)
+        y_vals.append(f(x))
+        x += step
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(x_vals, y_vals, label='f(x)', color='blue')
+    plt.axhline(0, color='black', linewidth=0.5)
+
+    if roots:
+        for root in roots:
+            plt.scatter(root, f(root), color='green', label=f'Root at x={root:.4f}')
+        plt.title(f"{method_name} - Roots Visualization")
+    else:
+        plt.title(f"{method_name} - No roots found")
+
+    plt.xlabel("x")
+    plt.ylabel("f(x)")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 def main():
-    """
-    Main function to interact with user and apply root-finding methods.
-    """
     start = 0
     end = 4
     step = 0.1
@@ -138,6 +139,7 @@ def main():
         elif choice == "1":
             print("\nUsing Bisection Method...")
             index = 1
+            roots = []
             found = False
             x = start
             while x < end:
@@ -145,17 +147,18 @@ def main():
                     root, iterations = bisection_method(f, x, x + step, epsilon)
                     if root is not None:
                         print(f"Root {index}: {root} (Iterations: {iterations})")
+                        roots.append(root)
                         index += 1
                         found = True
-                    else:
-                        print(f"Bisection failed to converge in interval ({x}, {x + step}).")
                 x += step
             if not found:
                 print("No root found in the given interval using Bisection Method.")
+            plot_function_with_roots(f, roots, start, end, method_name="Bisection Method")
 
         elif choice == "2":
             print("\nUsing Newton-Raphson Method...")
             index = 1
+            roots = []
             found = False
             x = start
             while x < end:
@@ -164,17 +167,18 @@ def main():
                     root, iterations = newton_raphson(f, df, mid, epsilon)
                     if root is not None:
                         print(f"Root {index}: {root} (Iterations: {iterations})")
+                        roots.append(root)
                         index += 1
                         found = True
-                    else:
-                        print(f"Newton-Raphson failed to converge in interval ({x}, {x + step}).")
                 x += step
             if not found:
                 print("No root found in the given interval using Newton-Raphson Method.")
+            plot_function_with_roots(f, roots, start, end, method_name="Newton-Raphson Method")
 
         elif choice == "3":
             print("\nUsing Secant Method...")
             index = 1
+            roots = []
             found = False
             x = start
             while x < end:
@@ -182,13 +186,13 @@ def main():
                     root, iterations = secant_method(f, x, x + step, epsilon)
                     if root is not None:
                         print(f"Root {index}: {root} (Iterations: {iterations})")
+                        roots.append(root)
                         index += 1
                         found = True
-                    else:
-                        print(f"Secant method failed to converge in interval ({x}, {x + step}).")
                 x += step
             if not found:
                 print("No root found in the given interval using Secant Method.")
+            plot_function_with_roots(f, roots, start, end, method_name="Secant Method")
 
         else:
             print("Invalid choice. Please enter 0, 1, 2, or 3.")
