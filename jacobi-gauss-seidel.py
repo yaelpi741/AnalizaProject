@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 def is_diagonally_dominant(matrix):
     """
     Checks whether the given matrix is diagonally dominant.
@@ -51,35 +53,54 @@ def print_vector(vec):
     """
     return "[" + ", ".join(f"{v[0]:.6f}" for v in vec) + "]"
 
+def plot_errors(errors, title):
+    """
+    Plots the convergence error over iterations.
+    """
+    plt.figure()
+    plt.plot(range(1, len(errors) + 1), errors, marker='o')
+    plt.title(title)
+    plt.xlabel("Iteration")
+    plt.ylabel("Error (Max Norm)")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 def jacobi_method(A, b, tol=1e-5, max_iterations=100):
     """
     Solves the system Ax = b using the Jacobi iterative method.
-    Formula:
-        x^(k+1) = (1 / a_ii) * (b_i - Σ a_ij * x_j^(k)) for j ≠ i
     """
     n = len(A)
     x = [[0.0] for _ in range(n)]
+    errors = []
+
     print("Jacobi Method:\n")
     for iteration in range(1, max_iterations + 1):
         x_new = [[0.0] for _ in range(n)]
         for i in range(n):
             sum_ax = sum(A[i][j] * x[j][0] for j in range(n) if j != i)
             x_new[i][0] = (b[i][0] - sum_ax) / A[i][i]
+        err = vector_difference_norm(x_new, x)
+        errors.append(err)
         print(f"Iteration {iteration}: {print_vector(x_new)}")
-        if vector_difference_norm(x_new, x) < tol:
+        if err < tol:
             print(f"\nConverged in {iteration} iterations.")
+            plot_errors(errors, "Jacobi Method Error per Iteration")
             return x_new, True, iteration
         x = x_new
+
     print("The system did not converge within the maximum number of iterations.")
+    plot_errors(errors, "Jacobi Method Error per Iteration")
     return None, False, max_iterations
 
 def gauss_seidel_method(A, b, tol=1e-5, max_iterations=100):
     """
     Solves the system Ax = b using the Gauss-Seidel iterative method.
-    This method uses newly computed values within the same iteration.
     """
     n = len(A)
     x = [[0.0] for _ in range(n)]
+    errors = []
+
     print("Gauss-Seidel Method:\n")
     for iteration in range(1, max_iterations + 1):
         x_new = [row[:] for row in x]
@@ -87,12 +108,17 @@ def gauss_seidel_method(A, b, tol=1e-5, max_iterations=100):
             sum1 = sum(A[i][j] * x_new[j][0] for j in range(i))
             sum2 = sum(A[i][j] * x[j][0] for j in range(i + 1, n))
             x_new[i][0] = (b[i][0] - sum1 - sum2) / A[i][i]
+        err = vector_difference_norm(x_new, x)
+        errors.append(err)
         print(f"Iteration {iteration}: {print_vector(x_new)}")
-        if vector_difference_norm(x_new, x) < tol:
+        if err < tol:
             print(f"\nConverged in {iteration} iterations.")
+            plot_errors(errors, "Gauss-Seidel Method Error per Iteration")
             return x_new, True, iteration
         x = x_new
+
     print("The system did not converge within the maximum number of iterations.")
+    plot_errors(errors, "Gauss-Seidel Method Error per Iteration")
     return None, False, max_iterations
 
 # --- Main program ---
