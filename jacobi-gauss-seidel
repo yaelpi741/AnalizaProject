@@ -1,7 +1,8 @@
 def is_diagonally_dominant(matrix):
     """
-    בודקת האם מטריצה היא דיאגונלית דומיננטית.
-    תנאי: ערך האלכסון בכל שורה גדול או שווה לסכום ערכי שאר העמודות בשורה.
+    Checks whether the given matrix is diagonally dominant.
+    A matrix is diagonally dominant if the absolute value of each diagonal element
+    is greater than or equal to the sum of the absolute values of the other elements in the row.
     """
     n = len(matrix)
     for i in range(n):
@@ -13,8 +14,9 @@ def is_diagonally_dominant(matrix):
 
 def rearrange_to_diagonally_dominant(A, b):
     """
-    מנסה לסדר מחדש את השורות של A (וגם של b) כך שהמטריצה תהיה דיאגונלית דומיננטית.
-    מחזירה את המטריצות החדשות ודגל הצלחה.
+    Attempts to rearrange the rows of matrix A (and vector b accordingly)
+    so that A becomes diagonally dominant.
+    Returns the new matrices and a boolean indicating success.
     """
     n = len(A)
     used_rows = set()
@@ -38,21 +40,22 @@ def rearrange_to_diagonally_dominant(A, b):
 
 def vector_difference_norm(vec1, vec2):
     """
-    מחזירה את ההפרש המקסימלי בין רכיבי שני וקטורים.
-    משמש לבדיקה אם התהליך התכנס.
+    Returns the maximum absolute difference between two vectors.
+    This is used to check for convergence in iterative methods.
     """
     return max(abs(vec1[i][0] - vec2[i][0]) for i in range(len(vec1)))
 
 def print_vector(vec):
     """
-    מחזירה מחרוזת עם הצגת וקטור בפורמט עם 6 ספרות אחרי הנקודה.
+    Returns a string representation of a vector with 6 decimal places.
     """
     return "[" + ", ".join(f"{v[0]:.6f}" for v in vec) + "]"
 
 def jacobi_method(A, b, tol=1e-5, max_iterations=100):
     """
-    פתרון מערכת משוואות Ax = b בשיטת ז'קובי.
-    x^(k+1) = (1 / a_ii) * (b_i - Σ a_ij * x_j^(k)) עבור j ≠ i
+    Solves the system Ax = b using the Jacobi iterative method.
+    Formula:
+        x^(k+1) = (1 / a_ii) * (b_i - Σ a_ij * x_j^(k)) for j ≠ i
     """
     n = len(A)
     x = [[0.0] for _ in range(n)]
@@ -72,8 +75,8 @@ def jacobi_method(A, b, tol=1e-5, max_iterations=100):
 
 def gauss_seidel_method(A, b, tol=1e-5, max_iterations=100):
     """
-    פתרון מערכת Ax = b בשיטת גאוס־זיידל.
-    בכל איטרציה משתמשים גם בערכים החדשים שכבר חושבו.
+    Solves the system Ax = b using the Gauss-Seidel iterative method.
+    This method uses newly computed values within the same iteration.
     """
     n = len(A)
     x = [[0.0] for _ in range(n)]
@@ -94,7 +97,7 @@ def gauss_seidel_method(A, b, tol=1e-5, max_iterations=100):
 
 # --- Main program ---
 if __name__ == "__main__":
-    # הגדרת מטריצה A ווקטור אגף ימין b
+    # Define matrix A and right-hand side vector b
     matrixA = [
         [4, 2, 0],
         [2, 10, 4],
@@ -126,7 +129,7 @@ if __name__ == "__main__":
             print("There is NO guarantee that the iterative methods will converge.")
             has_diagonal_dominance = False
 
-    # תפריט ראשי להרצת שיטות
+    # Main menu for method selection
     while True:
         print("Choose the method you want to run:")
         print("1 - Jacobi Method")
