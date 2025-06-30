@@ -1,22 +1,7 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 def lagrange_interpolation(x_vals, y_vals, x_interp):
-    """
-    Performs polynomial interpolation using the Lagrange method.
-
-    This method constructs a polynomial that passes through all given data points,
-    and evaluates it at a specified x value.
-
-    Parameters:
-        x_vals (list of float): List of known x-values.
-        y_vals (list of float): List of corresponding y-values.
-        x_interp (float): The x value to interpolate.
-
-    Returns:
-        float: Interpolated y value at x_interp.
-
-    Raises:
-        ValueError: If input lists are of different lengths or too short.
-        ZeroDivisionError: If duplicate x-values are detected (division by zero).
-    """
     if len(x_vals) != len(y_vals):
         raise ValueError("X and Y lists must be of the same length")
     if len(x_vals) < 2:
@@ -35,26 +20,7 @@ def lagrange_interpolation(x_vals, y_vals, x_interp):
         result += term
     return result
 
-
 def neville_interpolation(x_vals, y_vals, x_interp):
-    """
-    Performs polynomial interpolation using Neville's method.
-
-    Neville's algorithm builds a triangular table of interpolated values and computes
-    the interpolation step-by-step for improved numerical stability.
-
-    Parameters:
-        x_vals (list of float): List of known x-values.
-        y_vals (list of float): List of corresponding y-values.
-        x_interp (float): The x value to interpolate.
-
-    Returns:
-        float: Interpolated y value at x_interp.
-
-    Raises:
-        ValueError: If input lists are of different lengths or too short.
-        ZeroDivisionError: If duplicate x-values are detected (division by zero).
-    """
     if len(x_vals) != len(y_vals):
         raise ValueError("X and Y lists must be of the same length")
     if len(x_vals) < 2:
@@ -62,12 +28,9 @@ def neville_interpolation(x_vals, y_vals, x_interp):
 
     n = len(x_vals)
     Q = [[0.0 for _ in range(n)] for _ in range(n)]
-
-    # Initialize the first column of Q with y-values
     for i in range(n):
         Q[i][0] = y_vals[i]
 
-    # Fill in the rest of the table using Neville's recursive formula
     for j in range(1, n):
         for i in range(n - j):
             denominator = x_vals[i] - x_vals[i + j]
@@ -78,12 +41,28 @@ def neville_interpolation(x_vals, y_vals, x_interp):
 
     return Q[0][n - 1]
 
+def plot_interpolation(x_vals, y_vals, x_interp, y_interp):
+    """
+    Plots the original data points, the interpolation point, and the interpolation polynomial.
+    """
+    # Generate a fine grid of x values for smooth plotting
+    x_range = np.linspace(min(x_vals) - 0.5, max(x_vals) + 0.5, 300)
+    y_range = [lagrange_interpolation(x_vals, y_vals, xi) for xi in x_range]
+
+    plt.figure()
+    plt.plot(x_range, y_range, label='Lagrange Polynomial', color='blue')
+    plt.plot(x_vals, y_vals, 'ro', label='Original Points')
+    plt.plot(x_interp, y_interp, 'gs', label=f'Interpolated Point ({x_interp:.2f}, {y_interp:.2f})')
+
+    plt.title('Polynomial Interpolation (Lagrange)')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
 def main():
-    """
-    Demonstrates the use of Lagrange and Neville interpolation methods
-    on a predefined dataset with an interpolation point at x = 2.5.
-    """
     try:
         # Define table of values
         x = [1, 2, 3, 4]
@@ -100,6 +79,9 @@ def main():
         y_neville = neville_interpolation(x, y, x_interp)
         print(f'Neville interpolation at x = {x_interp}: y ≈ {y_neville:.4f}')
 
+        # Plot
+        plot_interpolation(x, y, x_interp, y_lagrange)
+
     except ValueError as ve:
         print(f"ValueError: {ve}")
     except ZeroDivisionError as zde:
@@ -107,7 +89,5 @@ def main():
     except Exception as e:
         print(f"Unexpected error: {e}")
 
-
 if __name__ == "__main__":
     main()
-
