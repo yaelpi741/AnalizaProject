@@ -1,0 +1,113 @@
+def lagrange_interpolation(x_vals, y_vals, x_interp):
+    """
+    Performs polynomial interpolation using the Lagrange method.
+
+    This method constructs a polynomial that passes through all given data points,
+    and evaluates it at a specified x value.
+
+    Parameters:
+        x_vals (list of float): List of known x-values.
+        y_vals (list of float): List of corresponding y-values.
+        x_interp (float): The x value to interpolate.
+
+    Returns:
+        float: Interpolated y value at x_interp.
+
+    Raises:
+        ValueError: If input lists are of different lengths or too short.
+        ZeroDivisionError: If duplicate x-values are detected (division by zero).
+    """
+    if len(x_vals) != len(y_vals):
+        raise ValueError("X and Y lists must be of the same length")
+    if len(x_vals) < 2:
+        raise ValueError("At least two data points are required")
+
+    n = len(x_vals)
+    result = 0
+    for i in range(n):
+        term = y_vals[i]
+        for j in range(n):
+            if i != j:
+                denominator = x_vals[i] - x_vals[j]
+                if denominator == 0:
+                    raise ZeroDivisionError("Duplicate X values detected")
+                term *= (x_interp - x_vals[j]) / denominator
+        result += term
+    return result
+
+
+def neville_interpolation(x_vals, y_vals, x_interp):
+    """
+    Performs polynomial interpolation using Neville's method.
+
+    Neville's algorithm builds a triangular table of interpolated values and computes
+    the interpolation step-by-step for improved numerical stability.
+
+    Parameters:
+        x_vals (list of float): List of known x-values.
+        y_vals (list of float): List of corresponding y-values.
+        x_interp (float): The x value to interpolate.
+
+    Returns:
+        float: Interpolated y value at x_interp.
+
+    Raises:
+        ValueError: If input lists are of different lengths or too short.
+        ZeroDivisionError: If duplicate x-values are detected (division by zero).
+    """
+    if len(x_vals) != len(y_vals):
+        raise ValueError("X and Y lists must be of the same length")
+    if len(x_vals) < 2:
+        raise ValueError("At least two data points are required")
+
+    n = len(x_vals)
+    Q = [[0.0 for _ in range(n)] for _ in range(n)]
+
+    # Initialize the first column of Q with y-values
+    for i in range(n):
+        Q[i][0] = y_vals[i]
+
+    # Fill in the rest of the table using Neville's recursive formula
+    for j in range(1, n):
+        for i in range(n - j):
+            denominator = x_vals[i] - x_vals[i + j]
+            if denominator == 0:
+                raise ZeroDivisionError("Duplicate X values detected in Neville's method")
+            Q[i][j] = ((x_interp - x_vals[i + j]) * Q[i][j - 1] +
+                       (x_vals[i] - x_interp) * Q[i + 1][j - 1]) / denominator
+
+    return Q[0][n - 1]
+
+
+def main():
+    """
+    Demonstrates the use of Lagrange and Neville interpolation methods
+    on a predefined dataset with an interpolation point at x = 2.5.
+    """
+    try:
+        # Define table of values
+        x = [1, 2, 3, 4]
+        y = [1, 4, 9, 16]
+
+        # Point to interpolate
+        x_interp = 2.5
+
+        # Lagrange interpolation
+        y_lagrange = lagrange_interpolation(x, y, x_interp)
+        print(f'Lagrange interpolation at x = {x_interp}: y ≈ {y_lagrange:.4f}')
+
+        # Neville interpolation
+        y_neville = neville_interpolation(x, y, x_interp)
+        print(f'Neville interpolation at x = {x_interp}: y ≈ {y_neville:.4f}')
+
+    except ValueError as ve:
+        print(f"ValueError: {ve}")
+    except ZeroDivisionError as zde:
+        print(f"Math error: {zde}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+
+if __name__ == "__main__":
+    main()
+
