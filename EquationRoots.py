@@ -2,12 +2,10 @@
 # Shahar Ezra - 329186118
 # Tamar Mosheev - 213864242
 
-# פונקציית המטרה: פולינום מדרגה שלישית עם שלושה שורשים ממשיים
 def f(x):
     """Returns the value of the function f(x) = x^3 - 6x^2 + 11x - 6."""
     return x**3 - 6*x**2 + 11*x - 6
 
-# נגזרת הפונקציה, נדרשת לשיטת ניוטון-רפסון
 def df(x):
     """Returns the derivative f'(x) = 3x^2 - 12x + 11."""
     return 3*x**2 - 12*x + 11
