@@ -1,46 +1,18 @@
 import math
+import matplotlib.pyplot as plt
 
 def romberg(f, a, b, max_level, verbose=True, real_value=None):
-    """
-    Performs numerical integration using Romberg's method.
-
-    Romberg's method uses Richardson extrapolation to improve the 
-    accuracy of the trapezoidal rule through a recursive table.
-
-    Parameters:
-        f (function): The function to integrate.
-        a (float): Lower limit of the integration.
-        b (float): Upper limit of the integration.
-        max_level (int): Number of refinement levels (rows in the Romberg table).
-        verbose (bool): If True, prints the Romberg table.
-        real_value (float): (Optional) Exact value to compare against.
-
-    Returns:
-        R (list of lists): The Romberg table containing approximations.
-        final_value (float): Most accurate approximation R[max_level-1][max_level-1].
-    """
-    # Initialize Romberg table with zeros
     R = [[0.0] * (i + 1) for i in range(max_level)]
-    h = b - a  # Initial step size
-
-    # First approximation using basic trapezoidal rule
+    h = b - a
     R[0][0] = 0.5 * h * (f(a) + f(b))
 
-    # Build the Romberg table row by row
     for i in range(1, max_level):
-        h /= 2.0  # Halve the step size
-
-        # Compute sum of f(x) at new midpoints
+        h /= 2.0
         subtotal = sum(f(a + (2 * k - 1) * h) for k in range(1, 2**(i - 1) + 1))
-
-        # Refined trapezoidal estimate
         R[i][0] = 0.5 * R[i - 1][0] + h * subtotal
-
-        # Richardson extrapolation to fill the rest of the row
         for j in range(1, i + 1):
             R[i][j] = (4**j * R[i][j - 1] - R[i - 1][j - 1]) / (4**j - 1)
 
-    # Optionally print the table and error
     if verbose:
         print("\nRomberg Integration Table:")
         for i in range(max_level):
@@ -53,31 +25,39 @@ def romberg(f, a, b, max_level, verbose=True, real_value=None):
             print(f"\nEstimated value: {approx:.10f}")
             print(f"Absolute error: {error:.10e}")
 
+        if real_value is not None:
+            plot_romberg_convergence(R, real_value)
+
     return R, R[max_level - 1][max_level - 1]
 
+def plot_romberg_convergence(R, real_value):
+    approx_values = [R[i][i] for i in range(len(R))]  # Diagonal values
+    levels = list(range(1, len(R) + 1))
+
+    plt.figure()
+    plt.plot(levels, approx_values, marker='o', label='Romberg Approximation')
+    plt.axhline(real_value, color='green', linestyle='--', label=f'True Value ≈ {real_value:.10f}')
+    plt.xlabel('Refinement Level')
+    plt.ylabel('Approximation')
+    plt.title('Romberg Convergence Plot')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
 def select_function(choice):
-    """
-    Maps user's choice to a mathematical function and known exact value.
-
-    Parameters:
-        choice (str): User input (1, 2, or 3)
-
-    Returns:
-        tuple: (function, string description, exact value or None)
-    """
     if choice == "1":
         return lambda x: math.sin(x), "sin(x)", 2.0
     elif choice == "2":
-        return lambda x: x**2, "x^2", None  # True value computed later
+        return lambda x: x**2, "x^2", None
     elif choice == "3":
-        return lambda x: math.exp(x), "exp(x)", None  # True value computed later
+        return lambda x: math.exp(x), "exp(x)", None
     else:
         raise ValueError("Invalid function choice")
 
 if __name__ == "__main__":
     print("Romberg Integration - User Input Mode")
 
-    # Ask user to choose function
     print("Choose a function to integrate:")
     print("1. sin(x)     from 0 to pi        (expected = 2.0)")
     print("2. x^2        from a to b         (expected = (b^3 - a^3)/3)")
@@ -91,7 +71,6 @@ if __name__ == "__main__":
     try:
         f, fname, true_val = select_function(func_choice)
 
-        # If true value depends on a/b, calculate it
         if true_val is None:
             if func_choice == "2":
                 true_val = (b**3 - a**3) / 3
