@@ -10,6 +10,7 @@ from Simpson_Rule import simpson as simpson_rule
 from Romberg_Integration import romberg_main as romberg_integration
 from Cubic_Spline_Interpolation import cubic_spline_main as cubic_spline
 from interpolation_methods import trapezoid_rule
+from matrix_vector_mult import residual_norm_max, plot_residual
 
 def is_valid_function_input(expr_str):
     allowed_chars = r"^[\d\w\s\+\-\*\/\^\(\)\.\,\:]+$"
@@ -93,6 +94,7 @@ def main_menu():
     print("9. Romberg Integration")
     print("10. Simpson Rule")
     print("11. Trapezoid Rule")
+    print("12. Residual Vector Analysis (r = b - Ax)")
     print("0. Exit")
 
 def main():
@@ -192,6 +194,38 @@ def main():
                 result = trapezoid_rule(f, a, b, n)
                 print(f"Integration result: {result}")
                 plot_function(f, f"Trapezoid Rule: f(x) = {f_str}", a=a, b=b)
+
+            elif choice == 12:
+                try:
+                    n = int(input("Enter the number of variables (n): "))
+
+                    print("\nEnter matrix A row by row (each row should have n space-separated numbers):")
+                    A = []
+                    for i in range(n):
+                        row = input(f"Row {i + 1}: ").strip().split()
+                        if len(row) != n:
+                            raise ValueError(f"Each row must have exactly {n} numbers.")
+                        A.append([float(val) for val in row])
+
+                    b_input = input("\nEnter vector b (space-separated): ").strip().split()
+                    if len(b_input) != n:
+                        raise ValueError("Vector b must have n elements.")
+                    b = [float(val) for val in b_input]
+
+                    x_input = input("\nEnter approximate solution vector x (space-separated): ").strip().split()
+                    if len(x_input) != n:
+                        raise ValueError("Vector x must have n elements.")
+                    x_approx = [float(val) for val in x_input]
+
+                    residual_vector, error = residual_norm_max(A, x_approx, b)
+
+                    print("\nResidual vector r =", residual_vector)
+                    print("Residual max norm (‖r‖∞):", error)
+
+                    plot_residual(residual_vector)
+
+                except Exception as e:
+                    print("Error:", str(e))
 
             elif choice == "0":
                 print("Goodbye!")
