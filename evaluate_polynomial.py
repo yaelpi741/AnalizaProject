@@ -82,6 +82,7 @@ def plot_trapezoids(coeffs, left, right, step, x_vals, y_vals):
     plt.tight_layout()
     plt.show()
 
+"""
 def main():
     print("Trapezoidal Rule Integration for a Polynomial Function")
     try:
@@ -105,3 +106,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
