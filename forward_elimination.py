@@ -117,13 +117,15 @@ def get_matrix_input():
         raise ValueError("Vector b length must match number of variables.")
 
     return A, b
-
+"""
 def main():
     """
+"""
     Main function: receives matrix and vector from user,
     solves the system using Gaussian Elimination,
     and optionally displays the result as a bar chart.
     """
+"""
     try:
         print("Gaussian Elimination Solver")
         A, b = get_matrix_input()
@@ -142,3 +144,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
