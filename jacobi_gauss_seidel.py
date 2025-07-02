@@ -121,6 +121,7 @@ def gauss_seidel_method(A, b, tol=1e-5, max_iterations=100):
     plot_errors(errors, "Gauss-Seidel Method Error per Iteration")
     return None, False, max_iterations
 
+"""
 # --- Main program ---
 if __name__ == "__main__":
     # Define matrix A and right-hand side vector b
@@ -188,3 +189,4 @@ if __name__ == "__main__":
                 print(f"\nThe system did NOT converge using the {method_name} method.\n")
 
         print("-" * 50)
+"""
