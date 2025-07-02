@@ -123,13 +123,46 @@ def get_matrix_input():
 
     return A, b
 
+def trapezoid_rule(f, a, b, n):
+    """
+    Approximates the definite integral of a function f over [a, b]
+    using the Trapezoidal Rule with n subintervals.
+
+    Parameters:
+        f (function): The integrand – a function of one variable.
+        a (float): The lower limit of integration.
+        b (float): The upper limit of integration.
+        n (int): Number of subintervals (must be >= 1).
+
+    Returns:
+        float: Approximation of the integral of f from a to b.
+
+    Raises:
+        ValueError: If n < 1 or a >= b.
+    """
+    if n < 1:
+        raise ValueError("Number of subintervals n must be at least 1.")
+    if a >= b:
+        raise ValueError("Lower limit a must be less than upper limit b.")
+
+    h = (b - a) / n
+    total = 0.5 * (f(a) + f(b))  # Endpoints are halved
+    for i in range(1, n):
+        total += f(a + i * h)
+
+    return h * total
+
+
+"""
 def main():
     """
+"""
     Main program flow:
     - Gets input matrix and vector from user
     - Solves using Gaussian Elimination
     - Displays result and (optionally) shows a bar chart of the solution
     """
+"""
     try:
         print("Gaussian Elimination Solver")
         A, b = get_matrix_input()
@@ -148,4 +181,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
+"""
