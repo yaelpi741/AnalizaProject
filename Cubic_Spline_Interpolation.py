@@ -87,7 +87,7 @@ def plot_spline(x_vals, y_vals, b, c, d, x_target, y_interp):
     plt.legend()
     plt.tight_layout()
     plt.show()
-
+""" 
 def main():
     try:
         print("Cubic Spline Interpolation (No NumPy)")
@@ -108,3 +108,43 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
+def cubic_spline_main():
+    print(" Cubic Spline Interpolation ")
+    n = int(input("Enter number of points (at least 3): "))
+    x_vals = []
+    y_vals = []
+    for i in range(n):
+        x = float(input(f"Enter x[{i}]: "))
+        y = float(input(f"Enter y[{i}]: "))
+        x_vals.append(x)
+        y_vals.append(y)
+
+    x_target = float(input("Enter x value to interpolate: "))
+
+    try:
+        y_interp, b, c, d = cubic_spline_interpolation(x_vals, y_vals, x_target)
+        print(f"Interpolated value at x = {x_target}: y = {y_interp}")
+
+        # גרף
+        import matplotlib.pyplot as plt
+        dense_x = [x_vals[0] + i * (x_vals[-1] - x_vals[0]) / 1000 for i in range(1001)]
+        dense_y = []
+        for x in dense_x:
+            try:
+                y, _, _, _ = cubic_spline_interpolation(x_vals, y_vals, x)
+                dense_y.append(y)
+            except:
+                dense_y.append(None)
+
+        plt.plot(dense_x, dense_y, label="Spline Curve")
+        plt.scatter(x_vals, y_vals, color='red', label="Data Points")
+        plt.axvline(x_target, color='green', linestyle='--', label=f"x_target = {x_target}")
+        plt.title("Cubic Spline Interpolation")
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    except Exception as e:
+        print(f"Error: {e}")
+
