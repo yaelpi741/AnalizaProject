@@ -195,7 +195,7 @@ def main():
                 print(f"Integration result: {result}")
                 plot_function(f, f"Trapezoid Rule: f(x) = {f_str}", a=a, b=b)
 
-            elif choice == 12:
+            elif choice == "12":
                 try:
                     n = int(input("Enter the number of variables (n): "))
 
