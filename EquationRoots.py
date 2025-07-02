@@ -1,6 +1,8 @@
 # Yael Pinto - 326252376
 # Shahar Ezra - 329186118
 # Tamar Mosheev - 213864242
+import matplotlib
+matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 
@@ -12,7 +14,7 @@ def df(x):
     """Returns the derivative f'(x) = 3x^2 - 12x + 11."""
     return 3*x**2 - 12*x + 11
 
-def newton_raphson(func, dfunc, x0, epsilon=0.0001, max_iterations=100):
+def newton_method(func, dfunc, x0, epsilon=0.0001, max_iterations=100):
     iterations = 0
     while iterations < max_iterations:
         fx = func(x0)
@@ -117,7 +119,7 @@ def plot_function_with_roots(f, roots, start, end, step=0.01, method_name=""):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
-
+"""
 def main():
     start = 0
     end = 4
@@ -198,3 +200,5 @@ def main():
             print("Invalid choice. Please enter 0, 1, 2, or 3.")
 
 main()
+"""
+
