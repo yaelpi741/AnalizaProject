@@ -1,0 +1,207 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import symbols, lambdify, sympify, SympifyError
+import re
+
+from EquationRoots import bisection_method, newton_method, secant_method
+from Lagrange_and_Neville_Polynomial_Interpolation import lagrange_interpolation, neville_interpolation
+from jacobi_gauss_seidel import jacobi_method, gauss_seidel_method
+from Simpson_Rule import simpson as simpson_rule
+from Romberg_Integration import romberg_main as romberg_integration
+from Cubic_Spline_Interpolation import cubic_spline_main as cubic_spline
+from interpolation_methods import trapezoid_rule
+
+def is_valid_function_input(expr_str):
+    allowed_chars = r"^[\d\w\s\+\-\*\/\^\(\)\.\,\:]+$"
+    hebrew_letters = re.compile("[\u0590-\u05FF]")
+    if not re.match(allowed_chars, expr_str.replace("**", "^")):
+        return False, "Expression contains invalid characters."
+    if hebrew_letters.search(expr_str):
+        return False, "Expression contains Hebrew letters, which are not allowed."
+    return True, ""
+
+def get_function_from_user():
+    x = symbols('x')
+    while True:
+        expr_str = input("Enter a function in terms of x (e.g., sin(x), x**2 - 4): ")
+        valid, msg = is_valid_function_input(expr_str)
+        if not valid:
+            print(f"Error: {msg}")
+            continue
+        try:
+            expr = sympify(expr_str)
+            f = lambdify(x, expr, "numpy")
+            return f, expr_str
+        except SympifyError as e:
+            print(f"Sympify error: {e}")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+
+def get_float(prompt):
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Please enter a valid number.")
+
+def get_int(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Please enter a valid integer.")
+
+def get_matrix_input(n):
+    print(f"Enter a {n}x{n} matrix:")
+    A = []
+    for i in range(n):
+        row = []
+        for j in range(n):
+            row.append(get_float(f"A[{i}][{j}] = "))
+        A.append(row)
+    return A
+
+def get_vector_input(n):
+    print(f"Enter a vector of size {n}:")
+    return [get_float(f"b[{i}] = ") for i in range(n)]
+
+def plot_function(f, title="Function Plot", a=-10, b=10):
+    try:
+        x_vals = np.linspace(a, b, 400)
+        y_vals = f(x_vals)
+        plt.figure()
+        plt.plot(x_vals, y_vals, label='f(x)')
+        plt.title(title)
+        plt.xlabel("x")
+        plt.ylabel("f(x)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+    except Exception as e:
+        print(f"Plotting error: {e}")
+
+def main_menu():
+    print("\nNumerical Methods - Choose a Method:")
+    print("1. Bisection Method")
+    print("2. Newton-Raphson Method")
+    print("3. Secant Method")
+    print("4. Cubic Spline Interpolation")
+    print("5. Lagrange Interpolation")
+    print("6. Neville Interpolation")
+    print("7. Jacobi Method")
+    print("8. Gauss-Seidel Method")
+    print("9. Romberg Integration")
+    print("10. Simpson Rule")
+    print("11. Trapezoid Rule")
+    print("0. Exit")
+
+def main():
+    while True:
+        main_menu()
+        choice = input("Enter your choice: ").strip()
+
+        try:
+            if choice == "1":
+                f, f_str = get_function_from_user()
+                a = get_float("Enter left endpoint (a): ")
+                b = get_float("Enter right endpoint (b): ")
+                tol = get_float("Enter tolerance: ")
+                if f(a) * f(b) >= 0:
+                    print("Bisection method requires a sign change over the interval.")
+                    continue
+                result = bisection_method(f, a, b, tol)
+                print(f"Root found: {result}")
+                plot_function(f, f"Bisection Method: f(x) = {f_str}", a=a, b=b)
+
+            elif choice == "2":
+                f, f_str = get_function_from_user()
+                x0 = get_float("Enter initial guess: ")
+                tol = get_float("Enter tolerance: ")
+                result = newton_method(f, x0, tol)
+                print(f"Root found: {result}")
+                plot_function(f, f"Newton-Raphson: f(x) = {f_str}", a=x0 - 5, b=x0 + 5)
+
+            elif choice == "3":
+                f, f_str = get_function_from_user()
+                x0 = get_float("Enter first guess: ")
+                x1 = get_float("Enter second guess: ")
+                tol = get_float("Enter tolerance: ")
+                result = secant_method(f, x0, x1, tol)
+                print(f"Root found: {result}")
+                plot_function(f, f"Secant Method: f(x) = {f_str}", a=min(x0, x1) - 5, b=max(x0, x1) + 5)
+
+            elif choice == "4":
+                n = get_int("How many points? ")
+                x_points = [get_float(f"x[{i}]: ") for i in range(n)]
+                y_points = [get_float(f"y[{i}]: ") for i in range(n)]
+                cubic_spline(x_points, y_points)
+                plt.scatter(x_points, y_points, color='red')
+                plt.title("Cubic Spline Interpolation")
+                plt.grid(True)
+                plt.show()
+
+            elif choice == "5":
+                n = get_int("Number of points: ")
+                x_vals = [get_float(f"x[{i}]: ") for i in range(n)]
+                y_vals = [get_float(f"y[{i}]: ") for i in range(n)]
+                x_interp = get_float("Enter interpolation point: ")
+                result = lagrange_interpolation(x_vals, y_vals, x_interp)
+                print(f"Estimated value at x = {x_interp}: {result}")
+
+            elif choice == "6":
+                n = get_int("Number of points: ")
+                x_vals = [get_float(f"x[{i}]: ") for i in range(n)]
+                y_vals = [get_float(f"y[{i}]: ") for i in range(n)]
+                x_interp = get_float("Enter interpolation point: ")
+                result = neville_interpolation(x_vals, y_vals, x_interp)
+                print(f"Estimated value at x = {x_interp}: {result}")
+
+            elif choice == "7":
+                n = get_int("Matrix size: ")
+                A = get_matrix_input(n)
+                b = get_vector_input(n)
+                jacobi_method(A, b)
+
+            elif choice == "8":
+                n = get_int("Matrix size: ")
+                A = get_matrix_input(n)
+                b = get_vector_input(n)
+                gauss_seidel_method(A, b)
+
+            elif choice == "9":
+                a = get_float("Start of interval a: ")
+                b = get_float("End of interval b: ")
+                iterations = get_int("Number of iterations: ")
+                f, _ = get_function_from_user()
+                romberg_integration(a, b, iterations, f)
+
+            elif choice == "10":
+                f, f_str = get_function_from_user()
+                a = get_float("Start of interval (a): ")
+                b = get_float("End of interval (b): ")
+                n = get_int("Number of subintervals (even): ")
+                result = simpson_rule(f, a, b, n)
+                print(f"Integration result: {result}")
+                plot_function(f, f"Simpson Rule: f(x) = {f_str}", a=a, b=b)
+
+            elif choice == "11":
+                f, f_str = get_function_from_user()
+                a = get_float("Start of interval (a): ")
+                b = get_float("End of interval (b): ")
+                n = get_int("Number of subintervals: ")
+                result = trapezoid_rule(f, a, b, n)
+                print(f"Integration result: {result}")
+                plot_function(f, f"Trapezoid Rule: f(x) = {f_str}", a=a, b=b)
+
+            elif choice == "0":
+                print("Goodbye!")
+                break
+
+            else:
+                print("Invalid choice. Please try again.")
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+if __name__ == "__main__":
+    main()
